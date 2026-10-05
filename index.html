@@ -96,6 +96,8 @@
     --ink: #17181d;
     --ink-sub: #5d5e66;
     --cut: 12px;
+    --tone: var(--accent);      /* 유형별로 바뀌는 티켓 색 */
+    --tone-deep: #a8492a;       /* 유형별로 바뀌는 글자 포인트 색 */
     position: relative;
     background: var(--paper);
     color: var(--ink);
@@ -122,12 +124,12 @@
     padding-bottom: 14px; margin-bottom: 20px;
     border-bottom: 2px solid var(--ink);
   }
-  .t-head .admit { color: #b4532f; }
+  .t-head .admit { color: var(--tone-deep); }
   .t-label { font-size: 12px; font-weight: 600; color: var(--ink-sub); margin-bottom: 8px; }
   .type-name { font-size: 26px; font-weight: 800; line-height: 1.3; letter-spacing: -0.03em; margin-bottom: 14px; }
   .keywords { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
   .kw {
-    border: 1.5px solid #b4532f; color: #b4532f;
+    border: 1.5px solid var(--tone-deep); color: var(--tone-deep);
     font-size: 12.5px; font-weight: 700; padding: 4px 11px; border-radius: 100px;
   }
   .type-desc { font-size: 14.5px; line-height: 1.75; color: var(--ink-sub); }
@@ -147,7 +149,7 @@
     position: relative;
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
     padding: 18px 24px 20px;
-    background: var(--accent); color: var(--ink);
+    background: var(--tone); color: var(--ink);
   }
   .ticket-stub::before {
     content: ''; position: absolute; top: -1px; left: 18px; right: 18px;
@@ -257,6 +259,7 @@
   // '상세보기' 버튼을 누르면 '영화 제목 연도'로 구글 검색 결과가 새 탭에서 열려요.
   const TYPES = {
     blank: {
+      tone: ['#9fbfa6', '#3f6448'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '여백을 사랑하는 사람',
       keywords: ['느린 호흡', '말보다 풍경', '긴 여운'],
       desc: '당신에게 영화는 사건이 아니라 시간이에요. 대사가 없어도, 풍경과 침묵만으로 마음이 차오르는 순간을 아는 사람. 엔딩 크레딧이 올라간 뒤에도 한참을 그 세계에 머무르죠.',
@@ -271,6 +274,7 @@
       ]
     },
     heart: {
+      tone: ['#e3a6ac', '#94414b'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '사람의 마음을 들여다보는 사람',
       keywords: ['섬세한 감정', '관계의 결', '이해와 오해'],
       desc: '당신이 궁금한 건 사건의 결말이 아니라 사람의 속마음이에요. 인물이 왜 그런 선택을 했는지, 말하지 못한 마음은 무엇인지 — 영화가 끝나도 그 사람들이 계속 생각나는 타입이죠.',
@@ -286,6 +290,7 @@
       ]
     },
     plot: {
+      tone: ['#e4b94e', '#7f5b0c'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '이야기에 빠져드는 사람',
       keywords: ['촘촘한 플롯', '반전의 쾌감', '몰입'],
       desc: '당신은 잘 짜인 이야기의 힘을 믿는 사람이에요. 흩어진 단서가 하나로 맞춰지는 순간, 예상을 배반하는 전개 — 두 시간 동안 스크린에서 눈을 뗄 수 없게 만드는 영화가 당신의 영화예요.',
@@ -299,6 +304,7 @@
       ]
     },
     world: {
+      tone: ['#aea2ea', '#5241a0'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '다른 세계로 떠나는 사람',
       keywords: ['낯선 세계', '상상력', '시각적 경험'],
       desc: '당신에게 영화관은 현실에서 가장 먼 곳으로 가는 문이에요. 처음 보는 세계, 이곳에 없는 규칙, 스크린이 아니면 만날 수 없는 이미지 — 영화만이 줄 수 있는 경험을 찾는 사람이죠.',
@@ -312,6 +318,7 @@
       ]
     },
     warm: {
+      tone: ['#f1b27b', '#8e4c14'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '온기가 필요한 사람',
       keywords: ['다정한 순간', '작은 위로', '회복'],
       desc: '당신은 영화가 주는 위로의 힘을 아는 사람이에요. 대단한 사건이 없어도, 서툰 사람들이 서로를 챙기는 장면에 마음이 풀리는 — 보고 나면 오늘이 조금 괜찮아지는 영화를 찾죠.',
@@ -326,6 +333,7 @@
       ]
     },
     chill: {
+      tone: ['#94b5cf', '#355a76'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '서늘한 긴장을 즐기는 사람',
       keywords: ['팽팽한 공기', '심리전', '어둠의 미학'],
       desc: '당신은 마음이 조여드는 그 감각을 즐기는 사람이에요. 겉으로는 고요하지만 밑에서 무언가 끓고 있는 이야기, 인물들 사이의 미묘한 심리전 — 서늘함이야말로 당신이 찾는 영화적 쾌감이죠.',
@@ -339,6 +347,7 @@
       ]
     },
     rush: {
+      tone: ['#ec7b62', '#a12f1b'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '심장이 뛰는 순간을 찾는 사람',
       keywords: ['압도적 스케일', '속도감', '몸으로 느끼는 쾌감'],
       desc: '당신에게 영화는 온몸으로 경험하는 거예요. 귀를 울리는 엔진 소리, 숨 돌릴 틈 없는 추격, 극장을 나설 때까지 가라앉지 않는 심장 박동 — 큰 스크린이 존재하는 이유를 아는 사람이죠.',
@@ -352,6 +361,7 @@
       ]
     },
     love: {
+      tone: ['#efa2c4', '#9c3463'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '사랑 이야기에 약한 사람',
       keywords: ['설렘', '엇갈림', '오래 남는 장면'],
       desc: '당신은 결국 사랑 이야기에 마음을 내어주는 사람이에요. 스치는 눈빛, 끝내 하지 못한 말, 다시 만날지도 모르는 약속 — 두 사람 사이의 공기만으로도 영화 한 편이 충분하죠.',
@@ -366,6 +376,7 @@
       ]
     },
     real: {
+      tone: ['#bdbb8c', '#5e5d22'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '세상을 똑바로 바라보는 사람',
       keywords: ['실화의 힘', '사회의 얼굴', '묵직한 질문'],
       desc: '당신은 영화를 통해 세상을 더 잘 알고 싶은 사람이에요. 실제로 있었던 일, 외면하기 쉬운 문제, 그 안에서 버틴 사람들 — 보고 나면 뉴스가 다르게 들리는 영화에 끌리죠.',
@@ -382,6 +393,7 @@
       ]
     },
     laugh: {
+      tone: ['#ecd55e', '#715f06'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '웃음으로 하루를 바꾸는 사람',
       keywords: ['유쾌한 리듬', '재치', '함께 웃는 즐거움'],
       desc: '당신은 잘 만든 웃음의 가치를 아는 사람이에요. 타이밍이 완벽한 대사, 예상 못 한 엉뚱함, 객석이 한꺼번에 터지는 순간 — 함께 보고 함께 웃을 때 영화가 제일 즐거운 타입이죠.',
@@ -396,6 +408,7 @@
       ]
     },
     fear: {
+      tone: ['#bcd56f', '#4e6716'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '공포 앞에서 눈을 뜨는 사람',
       keywords: ['오싹함', '심장이 쫄깃', '어둠 속 상상'],
       desc: '당신은 무서운데 눈을 뗄 수 없는 그 감각을 즐기는 사람이에요. 불이 꺼진 복도, 들리지 말아야 할 소리, 손가락 사이로 훔쳐보는 장면 — 영화관을 나설 때 뒤를 한 번 돌아보게 되는 영화가 당신의 영화예요.',
@@ -409,6 +422,7 @@
       ]
     },
     anim: {
+      tone: ['#8fcde8', '#2a6884'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '그림 속 세계에 빠지는 사람',
       keywords: ['손끝의 상상력', '색과 움직임', '어른을 위한 동화'],
       desc: '당신은 그림이 살아 움직일 때의 마법을 아는 사람이에요. 실사로는 담을 수 없는 색과 표정, 현실보다 더 진짜 같은 감정 — 애니메이션은 아이들만의 것이 아니라는 걸 누구보다 잘 알죠.',
@@ -423,6 +437,7 @@
       ]
     },
     music: {
+      tone: ['#d97757', '#a8492a'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '음악에 마음이 실리는 사람',
       keywords: ['리듬', '노래가 된 감정', '귀로 보는 영화'],
       desc: '당신에게 영화는 귀로 먼저 기억되는 거예요. 장면보다 그때 흐르던 음악이 먼저 떠오르고, 엔딩곡을 들으면 그 영화가 통째로 되살아나는 — 사운드트랙 앨범을 따로 찾아 듣는 사람이죠.',
@@ -436,6 +451,7 @@
       ]
     },
     classic: {
+      tone: ['#d3b88e', '#704f22'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '시간을 견딘 영화를 믿는 사람',
       keywords: ['고전의 품격', '명장면', '다시 보는 즐거움'],
       desc: '당신은 오랜 시간 사랑받은 데에는 이유가 있다고 믿는 사람이에요. 수없이 인용된 대사, 흑백 화면 속에서도 빛나는 배우들, 수십 년이 지나도 낡지 않는 이야기 — 영화의 뿌리를 찾아가는 즐거움을 아는 타입이죠.',
@@ -449,6 +465,7 @@
       ]
     },
     youth: {
+      tone: ['#92d6ba', '#287153'], // [티켓 아래쪽 색, 키워드·ADMIT ONE 글자색]
       name: '성장의 계절을 기억하는 사람',
       keywords: ['청춘', '처음의 감정', '성장통'],
       desc: '당신은 누군가 한 뼘 자라는 순간에 마음이 가는 사람이에요. 서툴러서 더 빛나던 시절, 처음 겪는 이별과 우정, 지나고 나서야 소중해지는 계절 — 보고 나면 그때의 나를 떠올리게 되는 영화를 찾죠.',
@@ -467,6 +484,7 @@
 
   // ── 특별 유형: 모든 질문을 '잘 모르겠어요'로 넘겼을 때만 나와요 ──
   const OPEN_TYPE = {
+    tone: ['linear-gradient(90deg, #ec7b62, #ecd55e, #92d6ba, #8fcde8, #aea2ea, #efa2c4)', '#55565e'],
     name: '모든 영화에 마음이 열린 사람',
     keywords: ['열린 마음', '장르 불문', '발견의 즐거움'],
     desc: '당신은 아직 하나의 취향에 머물지 않는 사람이에요. 어떤 질문에도 답을 고르지 않았다는 건, 어떤 영화든 받아들일 준비가 됐다는 뜻이기도 하죠. 그런 당신을 위해 결이 전혀 다른 영화들을 골라봤어요.',
@@ -718,6 +736,14 @@
     const allSkipped = skipped === QUESTIONS.length;
     const t = allSkipped ? OPEN_TYPE : TYPES[top];
     document.getElementById('skipNote').hidden = allSkipped || skipped < SKIP_NOTE_MIN;
+    // 유형별 포인트 컬러를 티켓에 입혀요.
+    const ticketEl = document.querySelector('.ticket');
+    ticketEl.style.setProperty('--tone', t.tone[0]);
+    ticketEl.style.setProperty('--tone-deep', t.tone[1]);
+    // 결과를 다시 볼 때도 티켓이 올라오는 움직임이 나오도록 애니메이션을 다시 시작해요.
+    ticketEl.style.animation = 'none';
+    void ticketEl.offsetWidth;
+    ticketEl.style.animation = '';
     document.getElementById('typeName').textContent = t.name;
     const kwEl = document.getElementById('typeKeywords');
     kwEl.innerHTML = '';
