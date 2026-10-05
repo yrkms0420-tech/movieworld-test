@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>무비월드 — 영화 취향 테스트</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+  :root {
+    --bg: #14151a;
+    --surface: #1e2027;
+    --line: #33363f;
+    --text: #f2efe8;
+    --sub: #9a9aa3;
+    --accent: #e8b84b;
+    --accent-dim: rgba(232, 184, 75, 0.14);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 44px 20px 72px;
+    word-break: keep-all;
+  }
+  .wrap { width: 100%; max-width: 560px; }
+
+  .eyebrow { font-size: 12px; letter-spacing: 0.18em; color: var(--accent); font-weight: 600; margin-bottom: 14px; }
+  h1 { font-size: 28px; font-weight: 700; line-height: 1.38; letter-spacing: -0.02em; margin-bottom: 12px; }
+  .lede { font-size: 15px; line-height: 1.8; color: var(--sub); margin-bottom: 36px; }
+
+  .start-btn, .again {
+    width: 100%; border: none; border-radius: 12px;
+    font-family: inherit; font-size: 16px; font-weight: 700;
+    padding: 16px; cursor: pointer; transition: opacity 0.2s;
+  }  .start-btn { background: var(--accent); color: #14151a; }
+  .start-btn:hover { opacity: 0.9; }
+  .again {
+    background: none; border: 1px solid var(--line); color: var(--sub);
+    font-weight: 500; font-size: 14px; padding: 13px; margin-top: 12px;
+  }
+  .again:hover { color: var(--text); border-color: var(--sub); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* 질문 상단: 이전 버튼 + 문항 번호 */
+  .quiz-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: none; border: none; padding: 6px 8px 6px 2px; margin-left: -2px;
+    font-family: inherit; font-size: 14px; font-weight: 600; color: var(--sub);
+    cursor: pointer; transition: color 0.15s;
+  }
+  .back-btn svg { width: 16px; height: 16px; }
+  .back-btn:hover { color: var(--text); }
+  .opt.selected { border-color: var(--accent); background: var(--accent-dim); }
+
+  /* 진행 표시 */
+  .progress { display: flex; gap: 6px; margin-bottom: 24px; }
+  .progress span { flex: 1; height: 3px; border-radius: 2px; background: var(--line); transition: background 0.3s; }
+  .progress span.on { background: var(--accent); }
+
+  .q-num { font-size: 12px; letter-spacing: 0.14em; color: var(--sub); font-weight: 600; }
+  .q-title { font-size: 21px; font-weight: 600; line-height: 1.5; letter-spacing: -0.015em; margin-bottom: 24px; }
+
+  .opt {
+    display: block; width: 100%; text-align: left;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    color: var(--text); font-family: inherit; font-size: 15px; line-height: 1.6;
+    padding: 16px 18px; margin-bottom: 10px; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .opt:hover { border-color: var(--accent); background: var(--surface); }
+
+  /* 결과 티켓 */
+  .ticket { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .ticket-top { padding: 26px 24px 22px; border-bottom: 1px dashed var(--line); position: relative; }
+  .ticket-top::before, .ticket-top::after {
+    content: ''; position: absolute; bottom: -8px; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--bg);
+  }
+  .ticket-top::before { left: -8px; }
+  .ticket-top::after { right: -8px; }
+  .ticket-label { font-size: 11px; letter-spacing: 0.16em; color: var(--sub); margin-bottom: 12px; font-weight: 600; }
+  .type-name { font-size: 24px; font-weight: 700; line-height: 1.38; letter-spacing: -0.02em; margin-bottom: 14px; }
+  .keywords { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .kw { background: var(--accent-dim); color: var(--accent); font-size: 13px; font-weight: 600; padding: 6px 13px; border-radius: 100px; }
+  .type-desc { font-size: 15px; line-height: 1.8; color: var(--sub); }
+  .ticket-bottom { padding: 22px 24px 26px; }
+  .rec { padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .rec:last-child { border-bottom: none; padding-bottom: 0; }
+  .detail-btn {
+    display: inline-flex; align-items: center; gap: 5px; margin-top: 12px;
+    border: 1px solid var(--line); border-radius: 100px;
+    padding: 7px 13px 7px 14px;
+    font-size: 13px; font-weight: 600; color: var(--text); text-decoration: none;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .detail-btn svg { width: 12px; height: 12px; }
+  .detail-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .detail-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .rec-title { font-size: 15.5px; font-weight: 700; margin-bottom: 4px; }
+  .rec-title span { color: var(--sub); font-weight: 400; font-size: 13.5px; margin-left: 6px; }
+  .rec-why { font-size: 13.5px; line-height: 1.65; color: var(--sub); }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  @media (max-width: 480px) {
+    body { padding: 36px 16px 60px; }
+    h1 { font-size: 24px; }
+    .q-title { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 시작 화면 -->
+  <div class="screen active" id="startScreen">
+    <div class="eyebrow">MOVIEWORLD · VOL.03</div>
+    <h1>나는 어떤 영화를<br>좋아하는 사람일까?</h1>
+    <p class="lede">장르 말고, 영화를 보는 마음을 물어볼게요. 열 개의 질문에 끌리는 쪽을 고르면 열다섯 가지 유형 중 당신의 영화 취향과 어울리는 영화를 알려드려요. 2분이면 충분해요.</p>
+    <button class="start-btn" id="startBtn" type="button">테스트 시작하기</button>
+  </div>
+
+  <!-- 질문 화면 -->
+  <div class="screen" id="quizScreen">
+    <div class="quiz-head">
+      <button class="back-btn" id="backBtn" type="button">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>
+        이전
+      </button>
+      <div class="q-num" id="qNum"></div>
+    </div>
+    <div class="progress" id="progress"></div>
+    <div class="q-title" id="qTitle"></div>
+    <div id="opts"></div>
+  </div>
+
+  <!-- 결과 화면 -->
+  <div class="screen" id="resultScreen">
+    <div class="ticket">
+      <div class="ticket-top">
+        <div class="ticket-label">TASTE TICKET — 당신의 영화 취향</div>
+        <div class="type-name" id="typeName"></div>
+        <div class="keywords" id="typeKeywords"></div>
+        <p class="type-desc" id="typeDesc"></p>
+      </div>
+      <div class="ticket-bottom">
+        <div class="ticket-label">오늘 밤, 이런 영화 어때요</div>
+        <div id="typeRecs"></div>
+      </div>
+    </div>
+    <button class="again" id="againBtn" type="button">다시 해보기</button>
+  </div>
+
+</div>
+
+<script>
+  // ── 취향 유형 15개 ──
+  // ⚠ movies의 추천작은 예시입니다. 무비월드의 큐레이션으로 교체하세요.
+  // '상세보기' 버튼을 누르면 '영화 제목 연도'로 구글 검색 결과가 새 탭에서 열려요.
+  const TYPES = {
+    blank: {
+      name: '여백을 사랑하는 사람',
+      keywords: ['느린 호흡', '말보다 풍경', '긴 여운'],
+      desc: '당신에게 영화는 사건이 아니라 시간이에요. 대사가 없어도, 풍경과 침묵만으로 마음이 차오르는 순간을 아는 사람. 엔딩 크레딧이 올라간 뒤에도 한참을 그 세계에 머무르죠.',
+      movies: [
+        { title: '노매드랜드', year: '2020', why: '길 위의 삶을 재촉하지 않고 끝까지 따라가는 영화예요.' },
+        { title: '퍼펙트 데이즈', year: '2023', why: '반복되는 하루가 이렇게 아름다울 수 있다는 걸 보여줘요.' },
+        { title: '콜럼버스', year: '2017', why: '건축과 침묵 사이로 두 사람의 마음이 천천히 흐릅니다.' }
+      ]
+    },
+    heart: {
+      name: '사람의 마음을 들여다보는 사람',
+      keywords: ['섬세한 감정', '관계의 결', '이해와 오해'],
+      desc: '당신이 궁금한 건 사건의 결말이 아니라 사람의 속마음이에요. 인물이 왜 그런 선택을 했는지, 말하지 못한 마음은 무엇인지 — 영화가 끝나도 그 사람들이 계속 생각나는 타입이죠.',
+      movies: [
+        { title: '괴물', year: '2023', why: '같은 시간을 세 개의 마음으로 다시 보여주는 영화예요.' },
+        { title: '벌새', year: '2018', why: '한 소녀의 계절을 이토록 가까이에서 지켜본 적이 있었나요.' },
+        { title: '애프터썬', year: '2022', why: '지나고 나서야 보이는 마음이 있다는 걸 알려줘요.' }
+      ]
+    },
+    plot: {
+      name: '이야기에 빠져드는 사람',
+      keywords: ['촘촘한 플롯', '반전의 쾌감', '몰입'],
+      desc: '당신은 잘 짜인 이야기의 힘을 믿는 사람이에요. 흩어진 단서가 하나로 맞춰지는 순간, 예상을 배반하는 전개 — 두 시간 동안 스크린에서 눈을 뗄 수 없게 만드는 영화가 당신의 영화예요.',
+      movies: [
+        { title: '나이브스 아웃', year: '2019', why: '고전 추리극의 재미를 가장 세련되게 되살린 영화예요.' },
+        { title: '올드보이', year: '2003', why: '마지막 장면의 충격은 아직도 회자되죠.' },
+        { title: '서치', year: '2018', why: '화면 구성부터 결말까지, 한순간도 긴장을 놓을 수 없어요.' }
+      ]
+    },
+    world: {
+      name: '다른 세계로 떠나는 사람',
+      keywords: ['낯선 세계', '상상력', '시각적 경험'],
+      desc: '당신에게 영화관은 현실에서 가장 먼 곳으로 가는 문이에요. 처음 보는 세계, 이곳에 없는 규칙, 스크린이 아니면 만날 수 없는 이미지 — 영화만이 줄 수 있는 경험을 찾는 사람이죠.',
+      movies: [
+        { title: '에브리씽 에브리웨어 올 앳 원스', year: '2022', why: '멀티버스를 이토록 엉뚱하고 뭉클하게 그린 영화는 없었어요.' },
+        { title: '듄: 파트 2', year: '2024', why: '스크린이 클수록 좋은, 압도적인 세계가 펼쳐져요.' },
+        { title: '스파이더맨: 뉴 유니버스', year: '2018', why: '애니메이션이 갈 수 있는 가장 먼 곳까지 가본 작품이에요.' }
+      ]
+    },
+    warm: {
+      name: '온기가 필요한 사람',
+      keywords: ['다정한 순간', '작은 위로', '회복'],
+      desc: '당신은 영화가 주는 위로의 힘을 아는 사람이에요. 대단한 사건이 없어도, 서툰 사람들이 서로를 챙기는 장면에 마음이 풀리는 — 보고 나면 오늘이 조금 괜찮아지는 영화를 찾죠.',
+      movies: [
+        { title: '패딩턴 2', year: '2017', why: '친절함이 세상을 바꾼다는 걸 진심으로 믿게 만들어요.' },
+        { title: '카모메 식당', year: '2006', why: '밥 짓는 장면만으로도 마음이 따뜻해지는 영화예요.' },
+        { title: '리틀 포레스트', year: '2018', why: '사계절의 밥상이 지친 마음을 천천히 채워줘요.' }
+      ]
+    },
+    chill: {
+      name: '서늘한 긴장을 즐기는 사람',
+      keywords: ['팽팽한 공기', '심리전', '어둠의 미학'],
+      desc: '당신은 마음이 조여드는 그 감각을 즐기는 사람이에요. 겉으로는 고요하지만 밑에서 무언가 끓고 있는 이야기, 인물들 사이의 미묘한 심리전 — 서늘함이야말로 당신이 찾는 영화적 쾌감이죠.',
+      movies: [
+        { title: '헤어질 결심', year: '2022', why: '수사와 사랑이 뒤섞이는, 우아하고 서늘한 심리극이에요.' },
+        { title: '시카리오: 암살자의 도시', year: '2015', why: '국경의 공기만으로 숨이 막히는, 묵직한 긴장의 영화예요.' },
+        { title: '추격자', year: '2008', why: '숨 쉴 틈 없이 몰아붙이는 한국 스릴러의 기준점이죠.' }
+      ]
+    },
+    rush: {
+      name: '심장이 뛰는 순간을 찾는 사람',
+      keywords: ['압도적 스케일', '속도감', '몸으로 느끼는 쾌감'],
+      desc: '당신에게 영화는 온몸으로 경험하는 거예요. 귀를 울리는 엔진 소리, 숨 돌릴 틈 없는 추격, 극장을 나설 때까지 가라앉지 않는 심장 박동 — 큰 스크린이 존재하는 이유를 아는 사람이죠.',
+      movies: [
+        { title: '매드맥스: 분노의 도로', year: '2015', why: '두 시간 내내 멈추지 않는 질주, 액션 영화의 교과서예요.' },
+        { title: '탑건: 매버릭', year: '2022', why: '진짜 전투기가 만드는 속도감은 흉내 낼 수 없어요.' },
+        { title: '범죄도시', year: '2017', why: '한 방 한 방이 통쾌한, 시원함의 끝판왕이에요.' }
+      ]
+    },
+    love: {
+      name: '사랑 이야기에 약한 사람',
+      keywords: ['설렘', '엇갈림', '오래 남는 장면'],
+      desc: '당신은 결국 사랑 이야기에 마음을 내어주는 사람이에요. 스치는 눈빛, 끝내 하지 못한 말, 다시 만날지도 모르는 약속 — 두 사람 사이의 공기만으로도 영화 한 편이 충분하죠.',
+      movies: [
+        { title: '비포 선라이즈', year: '1995', why: '하룻밤의 대화만으로 사랑이 시작되는 걸 지켜보게 돼요.' },
+        { title: '화양연화', year: '2000', why: '말하지 않아서 더 애틋한, 멜로의 정점이에요.' },
+        { title: '어바웃 타임', year: '2013', why: '사랑과 평범한 하루의 소중함을 다정하게 알려줘요.' }
+      ]
+    },
+    real: {
+      name: '세상을 똑바로 바라보는 사람',
+      keywords: ['실화의 힘', '사회의 얼굴', '묵직한 질문'],
+      desc: '당신은 영화를 통해 세상을 더 잘 알고 싶은 사람이에요. 실제로 있었던 일, 외면하기 쉬운 문제, 그 안에서 버틴 사람들 — 보고 나면 뉴스가 다르게 들리는 영화에 끌리죠.',
+      movies: [
+        { title: '히든 피겨스', year: '2016', why: '편견을 뚫고 우주로 가는 길을 연 사람들의 실화예요.' },
+        { title: '스포트라이트', year: '2015', why: '진실을 끝까지 파고드는 기자들의 집요함이 빛나요.' },
+        { title: '빅쇼트', year: '2015', why: '금융 위기의 민낯을 날카롭고도 유쾌하게 파헤쳐요.' }
+      ]
+    },
+    laugh: {
+      name: '웃음으로 하루를 바꾸는 사람',
+      keywords: ['유쾌한 리듬', '재치', '함께 웃는 즐거움'],
+      desc: '당신은 잘 만든 웃음의 가치를 아는 사람이에요. 타이밍이 완벽한 대사, 예상 못 한 엉뚱함, 객석이 한꺼번에 터지는 순간 — 함께 보고 함께 웃을 때 영화가 제일 즐거운 타입이죠.',
+      movies: [
+        { title: '바비', year: '2023', why: '분홍빛 웃음 뒤에 꽤 날카로운 질문이 숨어 있어요.' },
+        { title: '그랜드 부다페스트 호텔', year: '2014', why: '정교한 화면과 엉뚱한 유머가 완벽하게 맞물려요.' },
+        { title: '리틀 미스 선샤인', year: '2006', why: '엉망진창 가족의 여정이 웃기고 또 뭉클해요.' }
+      ]
+    },
+    fear: {
+      name: '공포 앞에서 눈을 뜨는 사람',
+      keywords: ['오싹함', '심장이 쫄깃', '어둠 속 상상'],
+      desc: '당신은 무서운데 눈을 뗄 수 없는 그 감각을 즐기는 사람이에요. 불이 꺼진 복도, 들리지 말아야 할 소리, 손가락 사이로 훔쳐보는 장면 — 영화관을 나설 때 뒤를 한 번 돌아보게 되는 영화가 당신의 영화예요.',
+      movies: [
+        { title: '겟 아웃', year: '2017', why: '불편함이 서서히 공포로 바뀌는 과정이 완벽해요.' },
+        { title: '유전', year: '2018', why: '가족 드라마의 얼굴을 한, 끝까지 놓아주지 않는 공포예요.' },
+        { title: '곡성', year: '2016', why: '무엇을 믿어야 할지 모르는 혼란 자체가 공포가 돼요.' }
+      ]
+    },
+    anim: {
+      name: '그림 속 세계에 빠지는 사람',
+      keywords: ['손끝의 상상력', '색과 움직임', '어른을 위한 동화'],
+      desc: '당신은 그림이 살아 움직일 때의 마법을 아는 사람이에요. 실사로는 담을 수 없는 색과 표정, 현실보다 더 진짜 같은 감정 — 애니메이션은 아이들만의 것이 아니라는 걸 누구보다 잘 알죠.',
+      movies: [
+        { title: '센과 치히로의 행방불명', year: '2001', why: '볼 때마다 새로운 것이 보이는, 끝없이 깊은 세계예요.' },
+        { title: '인사이드 아웃', year: '2015', why: '머릿속 감정들을 이렇게 다정하게 그린 영화는 없었어요.' },
+        { title: '코코', year: '2017', why: '색으로 가득한 사후 세계에서 가족의 의미를 다시 만나요.' }
+      ]
+    },
+    music: {
+      name: '음악에 마음이 실리는 사람',
+      keywords: ['리듬', '노래가 된 감정', '귀로 보는 영화'],
+      desc: '당신에게 영화는 귀로 먼저 기억되는 거예요. 장면보다 그때 흐르던 음악이 먼저 떠오르고, 엔딩곡을 들으면 그 영화가 통째로 되살아나는 — 사운드트랙 앨범을 따로 찾아 듣는 사람이죠.',
+      movies: [
+        { title: '라라랜드', year: '2016', why: '첫 장면부터 마지막 피아노 선율까지 음악이 이야기를 이끌어요.' },
+        { title: '위플래쉬', year: '2014', why: '드럼 하나로 액션 영화보다 더 숨 막히는 긴장을 만들어요.' },
+        { title: '원스', year: '2007', why: '두 사람이 함께 노래를 만드는 장면이 곧 사랑 고백이에요.' }
+      ]
+    },
+    classic: {
+      name: '시간을 견딘 영화를 믿는 사람',
+      keywords: ['고전의 품격', '명장면', '다시 보는 즐거움'],
+      desc: '당신은 오랜 시간 사랑받은 데에는 이유가 있다고 믿는 사람이에요. 수없이 인용된 대사, 흑백 화면 속에서도 빛나는 배우들, 수십 년이 지나도 낡지 않는 이야기 — 영화의 뿌리를 찾아가는 즐거움을 아는 타입이죠.',
+      movies: [
+        { title: '카사블랑카', year: '1942', why: '수많은 명대사가 태어난, 로맨스 고전의 원형이에요.' },
+        { title: '로마의 휴일', year: '1953', why: '단 하루의 일탈이 이토록 사랑스러울 수 있어요.' },
+        { title: '대부', year: '1972', why: '가족과 권력에 대한 이야기, 지금 봐도 압도적이에요.' }
+      ]
+    },
+    youth: {
+      name: '성장의 계절을 기억하는 사람',
+      keywords: ['청춘', '처음의 감정', '성장통'],
+      desc: '당신은 누군가 한 뼘 자라는 순간에 마음이 가는 사람이에요. 서툴러서 더 빛나던 시절, 처음 겪는 이별과 우정, 지나고 나서야 소중해지는 계절 — 보고 나면 그때의 나를 떠올리게 되는 영화를 찾죠.',
+      movies: [
+        { title: '레이디 버드', year: '2017', why: '떠나고 싶은 마음과 그리운 마음이 동시에 담긴 성장담이에요.' },
+        { title: '보이후드', year: '2014', why: '12년 동안 실제로 자라는 소년을 따라가는 특별한 경험이에요.' },
+        { title: '스탠 바이 미', year: '1986', why: '네 소년의 짧은 여름 모험이 평생의 기억이 돼요.' }
+      ]
+    }
+  };
+
+  // ── 질문 10개 · 선택지마다 [주 유형(+2), 보조 유형(+1)] ──
+  // 15개 유형이 각각 주 유형으로 2번씩 등장해요.
+  // 모든 응답 조합(59,049가지) 기준 유형별 결과 비율은 5~9.4%로 나와요. (완전 균등은 6.7%)
+  // 선택지의 유형이나 질문 순서를 바꾸면 비율이 달라질 수 있어요.
+  const QUESTIONS = [
+    {
+      q: '더 보고 싶은 이야기는?',
+      opts: [
+        { t: '시간이 지나도 회자되는 고전 속 이야기', s: ['classic', 'blank'] },
+        { t: '현실의 규칙을 벗어난 세계의 이야기', s: ['world', 'anim'] },
+        { t: '엇갈리고 다시 만나는 사랑 이야기', s: ['love', 'youth'] }
+      ]
+    },
+    {
+      q: '극장에서 가장 짜릿한 순간은?',
+      opts: [
+        { t: '숨소리마저 멈춘 듯한 팽팽한 정적', s: ['chill', 'love'] },
+        { t: '객석 전체가 한꺼번에 터지는 웃음', s: ['laugh', 'warm'] },
+        { t: '모두가 비명을 삼키는 순간', s: ['fear', 'chill'] }
+      ]
+    },
+    {
+      q: '가장 끌리는 장면은?',
+      opts: [
+        { t: '대사 없이 풍경과 음악만 흐르는 장면', s: ['blank', 'world'] },
+        { t: '두 인물이 팽팽하게 맞서는 대화 장면', s: ['chill', 'heart'] },
+        { t: '손으로 그린 듯한 세계가 살아 움직이는 장면', s: ['anim', 'world'] }
+      ]
+    },
+    {
+      q: '마음이 가장 크게 움직이는 순간은?',
+      opts: [
+        { t: '두 사람이 서로를 알아보는 순간', s: ['love', 'classic'] },
+        { t: '감춰졌던 진실이 세상에 드러나는 순간', s: ['real', 'plot'] },
+        { t: '주인공이 한 뼘 자라는 순간', s: ['youth', 'warm'] }
+      ]
+    },
+    {
+      q: '영화의 속도, 어느 쪽이 좋아요?',
+      opts: [
+        { t: '느려도 좋아요. 천천히 스며드는 쪽', s: ['heart', 'youth'] },
+        { t: '한순간도 못 놓게 몰아치는 쪽', s: ['rush', 'fear'] },
+        { t: '리듬감 있게 통통 튀는 쪽', s: ['laugh', 'music'] }
+      ]
+    },
+    {
+      q: '영화를 보고 난 뒤, 어떤 기분이 좋아요?',
+      opts: [
+        { t: '소중한 사람에게 괜히 연락하고 싶어지는 기분', s: ['warm', 'heart'] },
+        { t: '해석과 숨은 장치를 찾아보고 싶어지는 기분', s: ['plot', 'real'] },
+        { t: '그 세계가 꿈에 나올 것 같은 기분', s: ['anim', 'fear'] }
+      ]
+    },
+    {
+      q: '오늘 밤 필요한 온도는?',
+      opts: [
+        { t: '마음이 데워지는 따뜻함', s: ['warm', 'love'] },
+        { t: '잠들기 무서울 만큼의 오싹함', s: ['fear', 'chill'] },
+        { t: '눈이 번쩍 뜨이는 새로움', s: ['world', 'anim'] }
+      ]
+    },
+    {
+      q: '마음이 가는 주인공은?',
+      opts: [
+        { t: '아무도 보지 않는 문제를 끝까지 파고드는 사람', s: ['real', 'plot'] },
+        { t: '서툴지만 자기 길을 찾아가는 사람', s: ['youth', 'laugh'] },
+        { t: '무대 위에서 모든 걸 쏟아내는 사람', s: ['music', 'rush'] }
+      ]
+    },
+    {
+      q: '영화가 끝났을 때, 더 좋은 쪽은?',
+      opts: [
+        { t: '해석의 여지를 남기는, 여운이 긴 엔딩', s: ['blank', 'classic'] },
+        { t: '모든 퍼즐이 맞춰지는 명쾌한 결말', s: ['plot', 'chill'] },
+        { t: '박수가 절로 나오는 통쾌한 마무리', s: ['rush', 'laugh'] }
+      ]
+    },
+    {
+      q: '영화를 고를 때 가장 먼저 끌리는 건?',
+      opts: [
+        { t: '오랫동안 명작으로 꼽혀온 작품', s: ['classic', 'blank'] },
+        { t: '배우들의 연기가 압도적이라는 평', s: ['heart', 'real'] },
+        { t: '사운드트랙이 좋다는 입소문', s: ['music', 'rush'] }
+      ]
+    }
+  ];
+
+  const startScreen = document.getElementById('startScreen');
+  const quizScreen = document.getElementById('quizScreen');
+  const resultScreen = document.getElementById('resultScreen');
+  const progressEl = document.getElementById('progress');
+  let current = 0;
+  let answers = []; // 질문별로 고른 선택지 번호. 뒤로 가서 다시 고르면 덮어써요.
+
+  QUESTIONS.forEach(() => {
+    const s = document.createElement('span');
+    progressEl.appendChild(s);
+  });
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    current = 0;
+    answers = [];
+    show(quizScreen);
+    renderQuestion();
+  });
+
+  document.getElementById('againBtn').addEventListener('click', () => {
+    show(startScreen);
+  });
+
+  // 이전: 첫 질문에서는 시작 화면으로, 그 외에는 이전 질문으로 돌아가요.
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if (current === 0) {
+      show(startScreen);
+      return;
+    }
+    current--;
+    renderQuestion();
+  });
+
+  function show(screen) {
+    [startScreen, quizScreen, resultScreen].forEach(s => s.classList.remove('active'));
+    screen.classList.add('active');
+  }
+
+  function renderQuestion() {
+    const q = QUESTIONS[current];
+    document.getElementById('qNum').textContent = `Q${current + 1} / ${QUESTIONS.length}`;
+    document.getElementById('qTitle').textContent = q.q;
+    [...progressEl.children].forEach((s, i) => s.classList.toggle('on', i <= current));
+
+    const optsEl = document.getElementById('opts');
+    optsEl.innerHTML = '';
+    q.opts.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.type = 'button';
+      btn.textContent = opt.t;
+      // 뒤로 돌아온 질문이면 이전에 고른 답을 표시해요.
+      if (answers[current] === idx) btn.classList.add('selected');
+      btn.addEventListener('click', () => {
+        answers[current] = idx;
+        current++;
+        if (current < QUESTIONS.length) renderQuestion();
+        else renderResult();
+      });
+      optsEl.appendChild(btn);
+    });
+  }
+
+  function renderResult() {
+    // 고른 답으로 점수 계산: 주 유형 +2, 보조 유형 +1
+    const scores = Object.fromEntries(Object.keys(TYPES).map(k => [k, 0]));
+    const lastPick = {}; // 유형별로 주 유형으로 마지막 선택된 질문 번호 (동점 처리용)
+    answers.forEach((idx, qi) => {
+      const [main, sub] = QUESTIONS[qi].opts[idx].s;
+      scores[main] += 2;
+      scores[sub] += 1;
+      lastPick[main] = qi;
+    });
+    // 최고점 유형 중, 동점이면 더 최근 질문에서 주 유형으로 고른 쪽이 이겨요.
+    const max = Math.max(...Object.values(scores));
+    const top = Object.keys(scores)
+      .filter(k => scores[k] === max)
+      .sort((a, b) => (lastPick[b] ?? -1) - (lastPick[a] ?? -1))[0];
+    const t = TYPES[top];
+    document.getElementById('typeName').textContent = t.name;
+    const kwEl = document.getElementById('typeKeywords');
+    kwEl.innerHTML = '';
+    t.keywords.forEach(k => {
+      const s = document.createElement('span');
+      s.className = 'kw';
+      s.textContent = k;
+      kwEl.appendChild(s);
+    });
+    document.getElementById('typeDesc').textContent = t.desc;
+    const recsEl = document.getElementById('typeRecs');
+    recsEl.innerHTML = '';
+    t.movies.forEach(m => {
+      const rec = document.createElement('div');
+      rec.className = 'rec';
+
+      const title = document.createElement('div');
+      title.className = 'rec-title';
+      title.textContent = m.title;
+      const year = document.createElement('span');
+      year.textContent = m.year;
+      title.appendChild(year);
+
+      const why = document.createElement('div');
+      why.className = 'rec-why';
+      why.textContent = m.why;
+
+      const btn = document.createElement('a');
+      btn.className = 'detail-btn';
+      btn.href = 'https://www.google.com/search?q=' + encodeURIComponent(`영화 ${m.title} ${m.year}`);
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.setAttribute('aria-label', `${m.title} 상세보기 (새 탭에서 열림)`);
+      btn.innerHTML = '상세보기 <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 2h6v6M10 2 3 9"/></svg>';
+
+      rec.append(title, why, btn);
+      recsEl.appendChild(rec);
+    });
+    show(resultScreen);
+  }
+</script>
+</body>
+</html>
