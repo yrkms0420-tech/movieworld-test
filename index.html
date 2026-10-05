@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='#14151a'/%3E%3Cmask id='m'%3E%3Crect width='64' height='64' fill='#fff'/%3E%3Ccircle cx='12' cy='32' r='6' fill='#000'/%3E%3Ccircle cx='52' cy='32' r='6' fill='#000'/%3E%3Cpath d='M32 18v28' stroke='#000' stroke-width='2.5' stroke-dasharray='3.5 3.5'/%3E%3C/mask%3E%3Crect x='12' y='16' width='40' height='32' rx='5' fill='#d97757' mask='url%28#m%29'/%3E%3C/svg%3E">
 <title>무비월드 — 영화 취향 테스트</title>
 <style>
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -76,21 +77,83 @@
   }
   .opt:hover { border-color: var(--accent); background: var(--surface); }
 
-  /* 결과 티켓 */
-  .ticket { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-  .ticket-top { padding: 26px 24px 22px; border-bottom: 1px dashed var(--line); position: relative; }
-  .ticket-top::before, .ticket-top::after {
-    content: ''; position: absolute; bottom: -8px; width: 16px; height: 16px;
+  /* 결과 티켓: 종이 영화표 */
+  .ticket {
+    --paper: #f4f0e6;
+    --ink: #17181d;
+    --ink-sub: #5d5e66;
+    --cut: 12px;
+    position: relative;
+    background: var(--paper);
+    color: var(--ink);
+    /* 네 모서리를 안쪽으로 파낸 티켓 모양 */
+    -webkit-mask:
+      radial-gradient(circle at 0 0, transparent var(--cut), #000 calc(var(--cut) + 0.5px)) top left / 51% 51% no-repeat,
+      radial-gradient(circle at 100% 0, transparent var(--cut), #000 calc(var(--cut) + 0.5px)) top right / 51% 51% no-repeat,
+      radial-gradient(circle at 0 100%, transparent var(--cut), #000 calc(var(--cut) + 0.5px)) bottom left / 51% 51% no-repeat,
+      radial-gradient(circle at 100% 100%, transparent var(--cut), #000 calc(var(--cut) + 0.5px)) bottom right / 51% 51% no-repeat;
+            mask:
+      radial-gradient(circle at 0 0, transparent var(--cut), #000 calc(var(--cut) + 0.5px)) top left / 51% 51% no-repeat,
+      radial-gradient(circle at 100% 0, transparent var(--cut), #000 calc(var(--cut) + 0.5px)) top right / 51% 51% no-repeat,
+      radial-gradient(circle at 0 100%, transparent var(--cut), #000 calc(var(--cut) + 0.5px)) bottom left / 51% 51% no-repeat,
+      radial-gradient(circle at 100% 100%, transparent var(--cut), #000 calc(var(--cut) + 0.5px)) bottom right / 51% 51% no-repeat;
+    animation: print 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  @keyframes print { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .ticket { animation: none; } }
+
+  .ticket-main { padding: 22px 24px 24px; }
+  .t-head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+    padding-bottom: 14px; margin-bottom: 20px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .t-head .admit { color: #b4532f; }
+  .t-label { font-size: 12px; font-weight: 600; color: var(--ink-sub); margin-bottom: 8px; }
+  .type-name { font-size: 26px; font-weight: 800; line-height: 1.3; letter-spacing: -0.03em; margin-bottom: 14px; }
+  .keywords { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .kw {
+    border: 1.5px solid #b4532f; color: #b4532f;
+    font-size: 12.5px; font-weight: 700; padding: 4px 11px; border-radius: 100px;
+  }
+  .type-desc { font-size: 14.5px; line-height: 1.75; color: var(--ink-sub); }
+
+  /* 상영 정보 */
+  .t-info {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    margin-top: 22px; border-top: 1px solid rgba(23, 24, 29, 0.15);
+  }
+  .t-info div { padding: 12px 0 0; }
+  .t-info div + div { padding-left: 14px; border-left: 1px solid rgba(23, 24, 29, 0.15); }
+  .t-info dt { font-size: 11px; font-weight: 600; color: var(--ink-sub); margin-bottom: 4px; }
+  .t-info dd { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* 절취선 아래 반쪽(스텁) */
+  .ticket-stub {
+    position: relative;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 18px 24px 20px;
+    background: var(--accent); color: var(--ink);
+  }
+  .ticket-stub::before {
+    content: ''; position: absolute; top: -1px; left: 18px; right: 18px;
+    border-top: 2px dashed rgba(23, 24, 29, 0.45);
+  }
+  .ticket-stub::after, .stub-notch {
+    content: ''; position: absolute; top: -9px; width: 18px; height: 18px;
     border-radius: 50%; background: var(--bg);
   }
-  .ticket-top::before { left: -8px; }
-  .ticket-top::after { right: -8px; }
-  .ticket-label { font-size: 11px; letter-spacing: 0.16em; color: var(--sub); margin-bottom: 12px; font-weight: 600; }
-  .type-name { font-size: 24px; font-weight: 700; line-height: 1.38; letter-spacing: -0.02em; margin-bottom: 14px; }
-  .keywords { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  .kw { background: var(--accent-dim); color: var(--accent); font-size: 13px; font-weight: 600; padding: 6px 13px; border-radius: 100px; }
-  .type-desc { font-size: 15px; line-height: 1.8; color: var(--sub); }
-  .ticket-bottom { padding: 22px 24px 26px; }
+  .ticket-stub::after { right: -9px; }
+  .stub-notch { left: -9px; }
+  .stub-no dt { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; opacity: 0.7; margin-bottom: 3px; }
+  .stub-no dd { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+  .barcode { height: 38px; width: 132px; flex: none; }
+
+  /* 티켓 아래 추천작 */
+  .recs-wrap { margin-top: 28px; }
+  .recs-label { font-size: 13px; font-weight: 600; color: var(--sub); margin-bottom: 2px; }
+  .recs-wrap + .again { margin-top: 32px; }
   .rec { padding: 16px 0; border-bottom: 1px solid var(--line); }
   .rec:last-child { border-bottom: none; padding-bottom: 0; }
   .detail-btn {
@@ -144,18 +207,29 @@
 
   <!-- 결과 화면 -->
   <div class="screen" id="resultScreen">
-    <div class="ticket">
-      <div class="ticket-top">
-        <div class="ticket-label">TASTE TICKET — 당신의 영화 취향</div>
-        <div class="type-name" id="typeName"></div>
+    <article class="ticket" aria-label="영화 취향 티켓">
+      <div class="ticket-main">
+        <div class="t-head"><span>MOVIEWORLD</span><span class="admit">ADMIT ONE</span></div>
+        <div class="t-label">당신의 영화 취향</div>
+        <h2 class="type-name" id="typeName"></h2>
         <div class="keywords" id="typeKeywords"></div>
         <p class="type-desc" id="typeDesc"></p>
+        <dl class="t-info">
+          <div><dt>상영일</dt><dd id="tDate"></dd></div>
+          <div><dt>상영관</dt><dd id="tHall"></dd></div>
+          <div><dt>좌석</dt><dd id="tSeat"></dd></div>
+        </dl>
       </div>
-      <div class="ticket-bottom">
-        <div class="ticket-label">오늘 밤, 이런 영화 어때요</div>
-        <div id="typeRecs"></div>
+      <div class="ticket-stub">
+        <span class="stub-notch" aria-hidden="true"></span>
+        <dl class="stub-no"><dt>TICKET NO.</dt><dd id="tNo"></dd></dl>
+        <svg class="barcode" id="tBarcode" viewBox="0 0 132 38" preserveAspectRatio="none" aria-hidden="true"></svg>
       </div>
-    </div>
+    </article>
+    <section class="recs-wrap">
+      <h3 class="recs-label">이 티켓으로 볼 수 있는 영화</h3>
+      <div id="typeRecs"></div>
+    </section>
     <button class="again" id="againBtn" type="button">다시 해보기</button>
   </div>
 
@@ -468,6 +542,36 @@
     });
   }
 
+  // ── 티켓 정보: 고른 답으로 티켓 번호·좌석·바코드가 정해져요 ──
+  function fillTicketInfo(typeKey) {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    document.getElementById('tDate').textContent = `${String(d.getFullYear()).slice(2)}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`;
+    const hall = Object.keys(TYPES).indexOf(typeKey) + 1;
+    document.getElementById('tHall').textContent = `${pad(hall)}관`;
+
+    // 답 조합을 숫자 하나로 바꿔서 좌석과 티켓 번호를 만들어요. 같은 답이면 같은 좌석이에요.
+    const code = answers.reduce((acc, a) => acc * 3 + a, 0);
+    const rows = 'ABCDEFGHJK';
+    document.getElementById('tSeat').textContent = `${rows[code % rows.length]}열 ${(code % 18) + 1}번`;
+    document.getElementById('tNo').textContent = `MW-${pad(hall)}-${String(code).padStart(5, '0')}`;
+
+    // 바코드: 답마다 굵기가 다른 막대를 그려요.
+    const svg = document.getElementById('tBarcode');
+    svg.innerHTML = '';
+    const widths = [1, 2, 3];
+    let x = 0, seed = code + hall * 7919;
+    const bars = [];
+    while (x < 132) {
+      seed = (seed * 9301 + 49297) % 233280;
+      const w = widths[seed % 3];
+      if (x + w > 132) break;
+      bars.push(`<rect x="${x}" y="0" width="${w}" height="38" fill="currentColor"/>`);
+      x += w + widths[(seed >> 3) % 2] + 1;
+    }
+    svg.innerHTML = bars.join('');
+  }
+
   function renderResult() {
     // 고른 답으로 점수 계산: 주 유형 +2, 보조 유형 +1
     const scores = Object.fromEntries(Object.keys(TYPES).map(k => [k, 0]));
@@ -494,6 +598,7 @@
       kwEl.appendChild(s);
     });
     document.getElementById('typeDesc').textContent = t.desc;
+    fillTicketInfo(top);
     const recsEl = document.getElementById('typeRecs');
     recsEl.innerHTML = '';
     t.movies.forEach(m => {
