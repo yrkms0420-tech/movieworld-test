@@ -13,8 +13,8 @@
     --line: #33363f;
     --text: #f2efe8;
     --sub: #9a9aa3;
-    --accent: #e8b84b;
-    --accent-dim: rgba(232, 184, 75, 0.14);
+    --accent: #d97757;
+    --accent-dim: rgba(217, 119, 87, 0.16);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -37,7 +37,8 @@
     width: 100%; border: none; border-radius: 12px;
     font-family: inherit; font-size: 16px; font-weight: 700;
     padding: 16px; cursor: pointer; transition: opacity 0.2s;
-  }  .start-btn { background: var(--accent); color: #14151a; }
+  }
+  .start-btn { background: var(--accent); color: #14151a; }
   .start-btn:hover { opacity: 0.9; }
   .again {
     background: none; border: 1px solid var(--line); color: var(--sub);
@@ -121,7 +122,7 @@
 
   <!-- 시작 화면 -->
   <div class="screen active" id="startScreen">
-    <div class="eyebrow">MOVIEWORLD · VOL.03</div>
+    <div class="eyebrow">MOVIEWORLD</div>
     <h1>나는 어떤 영화를<br>좋아하는 사람일까?</h1>
     <p class="lede">장르 말고, 영화를 보는 마음을 물어볼게요. 열 개의 질문에 끌리는 쪽을 고르면 열다섯 가지 유형 중 당신의 영화 취향과 어울리는 영화를 알려드려요. 2분이면 충분해요.</p>
     <button class="start-btn" id="startBtn" type="button">테스트 시작하기</button>
